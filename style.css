@@ -6,53 +6,59 @@ html, body {
 }
 
 :root {
-    --color-white: #fff;
-    --color-main: #2c2d30;
-    --color-main-fade: #2c2d3000;
-    --color-secondary: #171717;
-    --color-secondary-fade: #17171700;
-    --color-button-hover: #242629;
-    --color-button-hover-fade: #24262900;
-    --color-user-icon: #8e0000;
-    --color-groupings: #9ca6b5;
-    --color-gpt-icon: #000000;
-    --color-black: #1e1e1f;
-    --color-user-menu-hover: #383b42;
-    --color-text: #f5f9ff;
-    --color-gpt3: #5fc319;
-    --color-gpt4: #f22626;
-    --color-secondary-p: #c9ccd1;
-    --color-logo: #848484;
+    --color-white: #ffffff;
+    --color-main: #1a1b1e;
+    --color-main-fade: #1a1b1e00;
+    --color-secondary: #25262b;
+    --color-secondary-fade: #25262b00;
+    --color-button-hover: #2c2d33;
+    --color-button-hover-fade: #2c2d3300;
+    --color-user-icon: #616161;
+    --color-groupings: #9095a0;
+    --color-gpt-icon: #616161;
+    --color-black: #0f0f10;
+    --color-user-menu-hover: #2c2d33;
+    --color-text: #e4e4e7;
+    --color-gpt3: #6366f1;
+    --color-gpt4: #a7a7a7;
+    --color-secondary-p: #a1a1aa;
+    --color-logo: #a1a1aa;
     --color-model-name: #ffffff;
-    --color-assistant-bg: #3f4042;
-    --color-assistant-text: #e1e6ed;
-    --color-disclaimer: #d0d2e1;
-    --color-border1: #484a4e;
-    --color-user-menu-border: #34373a;
-    --color-user-menu-selected-border: #4a5562;
-    --color-border2: #292d32;
-    --color-user-message-border: #2f353d;
+    --color-assistant-bg: #1e1f24;
+    --color-assistant-text: #e4e4e7;
+    --color-disclaimer: #71717a;
+    --color-border1: #3f3f46;
+    --color-user-menu-border: #27272a;
+    --color-user-menu-selected-border: #52525b;
+    --color-border2: #27272a;
+    --color-user-message-border: #3f3f46;
 }
 
+@import url('https://api.fontshare.com/v2/css?f[]=satoshi@1,2&display=swap');
+
 body {
-    background: var(--color-main);
+    background: linear-gradient(135deg, #0f0f10 0%, #1a1b1e 100%);
     display: flex;
     font-size: 1em;
-    font-family: system-ui, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", "SF Pro Text", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 #sidebar {
     position: relative;
     left: 0;
-    background: var(--color-secondary);
-    width: 260px;
+    background: rgba(37, 38, 43, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    width: 280px;
     padding: 12px;
     box-sizing: border-box;
     display: flex;
     justify-content: space-between;
     flex-direction: column;
-    transition: all 0.2s ease-in-out;
-    border-radius: 0 20px 20px 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .float-top {
@@ -74,29 +80,34 @@ body {
 
 button {
     display: block;
-    background: inherit;
-    border: 1px solid var(--color-border1);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 12px;
     color: var(--color-white);
-    padding: 13px;
+    padding: 12px 16px;
     box-sizing: border-box;
     text-align: left;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 500;
 }
 
 button:hover {
-    background: var(--color-button-hover);
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.12);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .sidebar-controls {
     display: flex;
-    gap: 10px;
-    margin-bottom: 8px;
+    gap: 8px;
+    margin-bottom: 12px;
 }
 
 .sidebar-controls button {
-    padding: 12px 13px 12px 13px;
+    padding: 10px 14px;
+    font-size: 0.9em;
 }
 
 .hide-sidebar {
@@ -145,7 +156,9 @@ button:hover {
 }
 
 .conversations li.active > button {
-    background: var(--color-main);
+    background: rgb(124, 124, 124, 0.15);
+    border-color: rgb(115, 111, 114, 0.3);
+    color: var(--color-white);
 }
 
 .edit-buttons {
@@ -194,37 +207,44 @@ button:hover {
 
 .conversations li.grouping {
     color: var(--color-groupings);
-    font-size: 0.7em;
-    font-weight: bold;
-    padding-left: 13px;
-    margin-top: 12px;
-    margin-bottom: 12px;
+    font-size: 0.75em;
+    font-weight: 600;
+    padding-left: 16px;
+    margin-top: 16px;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 i.user-icon {
     padding: 6px;
     color: var(--color-white);
-    background: var(--color-user-icon);
-    display: inline-block;
+    background: linear-gradient(135deg, var(--color-user-icon) 0%, #02051e 100%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     text-align: center;
-    width: 15px;
+    width: 24px;
+    height: 24px;
     border-radius: 8px;
-    margin-right: 6px;
+    margin-right: 8px;
     font-style: normal;
-    width: 18px;
-    height: 18px;
-    font-size: 15px;
+    font-size: 13px;
     text-transform: uppercase;
     font-family: system-ui, sans-serif;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgb(174, 175, 221, 0.3);
 }
 
 .gpt.user-icon  {
-    background: var(--color-gpt-icon);
+    background: linear-gradient(135deg, var(--color-gpt-icon) 0%, #595159 100%);
+    box-shadow: 0 2px 8px rgb(62, 62, 62, 0.3);
 }
 
 .user-menu {
     position: relative;
-    border-top: 1px solid var(--color-border1);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 8px;
 }
 
 .user-menu button {
@@ -254,10 +274,14 @@ i.user-icon {
     left: 0;
     opacity: 0;
     transform: translateY(-100%);
-    background: var(--color-black);
-    border-radius: 10px;
+    background: rgba(15, 15, 16, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
     width: 100%;
-    transition: all 0.2s ease-in-out;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 .user-menu > ul.show-animate {
@@ -328,33 +352,40 @@ main .view {
 
 .model-selector {
     position: relative;
-    border-radius: 11px;
-    background: var(--color-secondary);
+    border-radius: 16px;
+    background: rgba(37, 38, 43, 0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
-    padding: 4px;
-    gap: 4px;
-    margin: 24px auto;
+    padding: 6px;
+    gap: 6px;
+    margin: 32px auto;
     z-index: 2;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
 }
 
 .model-selector > button {
-    border-radius: 9px;
+    border-radius: 12px;
     text-align: center;
     width: 150px;
     border: none;
-    font-weight: bold;
-    opacity: 0.5;
+    font-weight: 600;
+    opacity: 0.6;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .model-selector > button:hover {
-    background: none;
+    background: rgba(255, 255, 255, 0.05);
     opacity: 1;
+    transform: translateY(-1px);
 }
 
 .model-selector > button.selected {
-    border: 1px solid var(--color-user-menu-selected-border);
-    background: var(--color-user-menu-hover);
+    border: 1px solid rgba(99, 102, 241, 0.4);
+    background: rgba(99, 102, 241, 0.15);
     opacity: 1;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
 }
 
 .model-selector button .fa {
@@ -404,17 +435,23 @@ p.secondary {
 .logo {
     position: relative;
     z-index: 1;
-    color: var(--color-logo);
-    font-weight: bold;
+    color: var(--color-white);
+    font-weight: 700;
     text-align: center;
-    font-size: 2.3em;
+    font-size: 2.5em;
+    letter-spacing: -0.02em;
 }
 
 .view.conversation-view {
     display: none;
     overflow-y: auto;
-    scroll-behavior: smooth;
-    padding-bottom: 20px;
+}
+
+#messagesList {
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 0;
 }
 
 .model-name {
@@ -429,51 +466,58 @@ p.secondary {
 .message {
     display: flex;
     gap: 20px;
-    padding: 25px 60px 15px 60px;
+    padding: 24px 60px;
     font-size: 0.95em;
+    width: 100%;
+    box-sizing: border-box;
+    max-width: 900px;
+    margin: 0 auto;
 }
 
 .message .content {
     padding-top: 5px;
-    max-width: 70%;
+    max-width: 100%;
+    flex: 1;
 }
 
 .user.message {
     color: var(--color-text);
     justify-content: flex-end;
-    border-bottom: none;
 }
 
 .user.message .content {
-    background: var(--color-assistant-bg);
-    padding: 12px 18px;
-    border-radius: 20px;
-    order: 1;
-}
-
-.user.message .identity {
-    order: 2;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    padding: 12px 16px;
+    max-width: 85%;
+    margin-left: auto;
+    margin-right: 0;
+    text-align: left;
 }
 
 .assistant.message {
-    background: transparent;
     color: var(--color-assistant-text);
-    border-bottom: 1px solid var(--color-border2);
+    justify-content: flex-start;
+}
+
+.assistant.message .identity {
+    display: none;
 }
 
 .assistant.message .content {
-    background: transparent;
-    padding: 0;
+    padding-left: 0;
+    margin: 0;
+    max-width: 100%;
+    text-align: left;
 }
 
 #message-form {
-    margin: 20px auto 0 auto;
+    margin: 0 auto;
     width: 100%;
     box-sizing: border-box;
-    max-width: 850px;
+    max-width: 900px;
     text-align: center;
-    padding: 0px 45px 0 45px;
-    box-shadow: var(--color-main) 0 0 50px;
+    padding: 0px 60px 0 60px;
 }
 
 .message-wrapper {
@@ -485,156 +529,67 @@ p.secondary {
 }
 
 #message {
-    background: var(--color-user-menu-hover);
-    border-radius: 18px;
+    background: rgba(37, 38, 43, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 20px;
     width: 100%;
     box-sizing: border-box;
-    border: 1px solid var(--color-user-message-border);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     resize: none;
-    padding: 17px 85px 17px 15px;
+    padding: 18px 20px 18px 60px;
     font-family: inherit;
     font-size: 1em;
     color: var(--color-white);
-    box-shadow: rgba(0,0,0,0.2) 0 0 45px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
     outline: none;
-    transition: all 0.2s ease;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 #message:focus {
-    border-color: var(--color-gpt3);
-    box-shadow: 0 0 0 3px rgba(95,195,25,0.1), rgba(0,0,0,0.2) 0 0 45px;
+    border-color: rgb(62, 62, 62, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 2px rgb(62, 62, 62, 0.3);
 }
 
 .disclaimer {
-    margin-top: 12px;
+    margin-top: 16px;
     color: var(--color-disclaimer);
-    font-size: 0.7em;
+    font-size: 0.75em;
+    opacity: 0.7;
 }
 
 .send-button {
     position: absolute;
-    right: 15px;
+    left: 12px;
     top: 50%;
     transform: translateY(-50%);
-    background: var(--color-gpt3);
+    background: linear-gradient(135deg, var(--color-gpt3) 0%, #131112 100%);
     border-radius: 12px;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     font-size: 1em;
-    padding: 7px 9px 7px 7px;
+    padding: 10px;
     color: var(--color-white);
     border: none;
     margin-top: -2px;
-    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgb(62, 62, 62, 0.3);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
 }
 
 button.send-button:hover {
     border: none;
-    background: var(--color-gpt3);
+    background: linear-gradient(135deg, #818cf8 0%, var(--color-gpt3) 100%);
     color: var(--color-white);
+    transform: translateY(-50%) scale(1.05);
+    box-shadow: 0 6px 20px rgb(62, 62, 62, 0.3);
+}
+
+button.send-button:active {
+    transform: translateY(-50%) scale(0.95);
 }
 
 p {
     margin: 0 0 1.5em 0;
-}
-
-/* Mobile Support */
-@media (max-width: 768px) {
-    #sidebar {
-        position: fixed;
-        left: -260px;
-        top: 0;
-        height: 100%;
-        z-index: 1000;
-        border-radius: 0 20px 20px 0;
-    }
-
-    #sidebar:not(.hidden) {
-        left: 0;
-    }
-
-    main {
-        width: 100%;
-        padding: 0 0 20px 0;
-    }
-
-    .message {
-        padding: 20px 15px 15px 15px;
-    }
-
-    .message .content {
-        max-width: 80%;
-    }
-
-    #message-form {
-        padding: 0 15px;
-        margin: 15px auto 0 auto;
-    }
-
-    .model-selector {
-        flex-direction: column;
-        width: 90%;
-        margin: 15px auto;
-    }
-
-    .model-selector > button {
-        width: 100%;
-    }
-
-    .logo {
-        font-size: 1.8em;
-        padding: 0 20px;
-    }
-
-    .send-button {
-        width: 36px;
-        height: 36px;
-    }
-
-    .model-select-input {
-        font-size: 0.75em;
-        padding: 6px 8px;
-        right: 50px;
-    }
-
-    #message {
-        font-size: 16px;
-        padding: 15px 80px 15px 12px;
-    }
-
-    .disclaimer {
-        font-size: 0.65em;
-    }
-}
-
-/* Prevent zoom on input focus for iOS */
-input, textarea, select {
-    font-size: 16px !important;
-    -webkit-text-size-adjust: 100%;
-}
-
-/* Apple WebKit specific fixes */
-* {
-    -webkit-tap-highlight-color: transparent;
-    -webkit-touch-callout: none;
-}
-
-input, textarea, button, select {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-}
-
-/* Ensure proper safe area on iOS */
-@supports (padding: max(0px)) {
-    main {
-        padding-left: max(0px, env(safe-area-inset-left));
-        padding-right: max(0px, env(safe-area-inset-right));
-        padding-bottom: max(30px, env(safe-area-inset-bottom));
-    }
-
-    #message-form {
-        padding-left: max(45px, calc(15px + env(safe-area-inset-left)));
-        padding-right: max(45px, calc(15px + env(safe-area-inset-right)));
-        padding-bottom: max(0px, env(safe-area-inset-bottom));
-    }
 }
