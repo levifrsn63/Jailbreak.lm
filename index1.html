@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <title>ChatGPT Clone</title>
+    <style>
+    .code-block{margin:12px 0;position:relative;border-radius:8px;overflow:hidden;background:#2d2d2d}
+    .code-header{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(0,0,0,0.3);border-bottom:1px solid rgba(255,255,255,0.1)}
+    .code-lang{font-size:11px;font-weight:500;text-transform:uppercase;color:rgba(255,255,255,0.6)}
+    .code-actions{display:flex;gap:4px}
+    .code-btn{background:rgba(255,255,255,0.1);border:none;padding:4px 10px;border-radius:6px;font-size:11px;color:rgba(255,255,255,0.8);cursor:pointer;transition:all 0.2s;font-weight:500}
+    .code-btn:hover{background:rgba(255,255,255,0.2);color:white}
+    .code-btn:active{transform:scale(0.95)}
+    .code-btn.copied{background:rgba(76,175,80,0.3);color:#4CAF50}
+    .code-block pre{margin:0;background:#2d2d2d!important}
+    .code-block code{font-family:'SF Mono',Monaco,Consolas,monospace;font-size:14px}
+    .settings-modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;overflow-y:auto}
+    .settings-modal.show{display:flex}
+    .settings-content{background:var(--color-secondary);border-radius:12px;padding:24px;min-width:480px;max-width:600px;max-height:90vh;overflow-y:auto;margin:20px}
+    .settings-content h2{margin:0 0 20px 0;color:var(--color-white)}
+    .settings-content h3{margin:24px 0 12px 0;color:var(--color-gpt3);font-size:1.1em}
+    .settings-field{margin-bottom:16px}
+    .settings-field label{display:block;color:var(--color-groupings);font-size:0.85em;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}
+    .settings-field input,.settings-field textarea{width:100%;background:var(--color-main);border:1px solid var(--color-border1);border-radius:5px;padding:10px;color:var(--color-white);box-sizing:border-box;font-family:inherit}
+    .settings-field textarea{min-height:80px;resize:vertical}
+    .settings-actions{display:flex;gap:12px;justify-content:flex-end;margin-top:20px}
+    .message .content pre{max-width:100%;overflow-x:auto}
+    .model-select-input{position:absolute;right:60px;top:50%;transform:translateY(-50%);background:var(--color-user-menu-hover);border:1px solid var(--color-border1);border-radius:5px;padding:7px 10px;color:var(--color-white);cursor:pointer;font-size:0.85em;height:34px}
+    .send-button{width:34px;height:34px;padding:0!important;display:flex;align-items:center;justify-content:center}
+    .jailbreak-preset{background:var(--color-main);border:1px solid var(--color-border1);border-radius:5px;padding:12px;margin-bottom:12px}
+    .jailbreak-preset h4{margin:0 0 8px 0;color:var(--color-white);font-size:0.95em}
+    .jailbreak-preset p{margin:0;color:var(--color-groupings);font-size:0.8em;line-height:1.4}
+    </style>
+</head>
+<body>
+    <nav id="sidebar">
+        <div class="float-top">
+            <div class="sidebar-controls">
+                <button class="new-chat" id="newChatBtn"><i class="fa fa-plus"></i> New chat</button>
+                <button class="hide-sidebar" id="toggleSidebar"><i class="fa fa-chevron-left"></i></button>
+            </div>
+            <ul class="conversations" id="conversationsList"></ul>
+        </div>
+        <div class="user-menu">
+            <button id="userMenuBtn">
+                <i class="user-icon">u</i>
+                Settings
+                <i class="fa fa-ellipsis dots"></i>
+            </button>
+            <ul id="userMenuDropdown">
+                <li><button id="settingsBtn">API Keys & Settings</button></li>
+                <li><button id="themeToggleBtn">Toggle Dark Mode</button></li>
+            </ul>
+        </div>
+    </nav>
+    <main>
+        <div class="view new-chat-view" id="newChatView">
+            <div class="model-selector">
+                <button class="gpt-3 selected" data-provider="openai">
+                    <i class="fa fa-bolt"></i> OpenAI
+                </button>
+                <button class="gpt-4" data-provider="anthropic">
+                    <i class="fa fa-wand-magic-sparkles"></i> Anthropic
+                </button>
+                <button class="gpt-3" data-provider="deepseek">
+                    <i class="fa fa-rocket"></i> DeepSeek
+                </button>
+            </div>
+
+            <div class="logo">ChatGPT Clone</div>
+        </div>
+
+        <div class="view conversation-view" id="conversationView">
+            <div id="messagesList"></div>
+        </div>
+
+        <div id="message-form">
+            <div class="message-wrapper">
+                <textarea id="message" rows="1" placeholder="Send a message"></textarea>
+                <select id="modelSelect" class="model-select-input">
+                    <option value="">Default</option>
+                    <optgroup label="OpenAI">
+                        <option value="gpt-4o">GPT-4o</option>
+                        <option value="gpt-4o-mini">GPT-4o Mini</option>
+                        <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                        <option value="gpt-3.5-turbo">GPT-3.5</option>
+                    </optgroup>
+                    <optgroup label="Anthropic">
+                        <option value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet</option>
+                        <option value="claude-3-opus-20240229">Claude 3 Opus</option>
+                        <option value="claude-3-haiku-20240307">Claude 3 Haiku</option>
+                    </optgroup>
+                    <optgroup label="DeepSeek">
+                        <option value="deepseek-chat">DeepSeek Chat</option>
+                        <option value="deepseek-coder">DeepSeek Coder</option>
+                    </optgroup>
+                </select>
+                <button class="send-button" id="sendBtn"><i class="fa fa-paper-plane"></i></button>
+            </div>
+            <div class="disclaimer">ChatGPT Clone with OpenAI, Anthropic, and DeepSeek support</div>
+        </div>
+    </main>
+
+    <div class="settings-modal" id="settingsModal">
+        <div class="settings-content">
+            <h2>API Keys & Settings</h2>
+            
+            <h3>API Keys</h3>
+            <div class="settings-field">
+                <label>OpenAI API Key</label>
+                <input type="password" id="openaiKey" placeholder="sk-..." />
+            </div>
+            <div class="settings-field">
+                <label>Anthropic API Key</label>
+                <input type="password" id="anthropicKey" placeholder="sk-ant-..." />
+            </div>
+            <div class="settings-field">
+                <label>DeepSeek API Key</label>
+                <input type="password" id="deepseekKey" placeholder="sk-..." />
+            </div>
+            <div class="settings-field">
+                <label>Custom Endpoint</label>
+                <input type="text" id="customEndpoint" placeholder="https://api.example.com/v1/chat" />
+            </div>
+            <div class="settings-field">
+                <label>Custom API Key</label>
+                <input type="password" id="customKey" placeholder="Your API key" />
+            </div>
+            
+            <h3>Model Parameters</h3>
+            <div class="settings-field">
+                <label>Temperature (0-2)</label>
+                <input type="number" id="tempInput" min="0" max="2" step="0.1" value="0.7" />
+            </div>
+            <div class="settings-field">
+                <label>Max Tokens</label>
+                <input type="number" id="maxTokensInput" min="16" max="4096" value="1024" />
+            </div>
+            
+            <h3>Jailbreaks (System Prompts)</h3>
+            <p style="color:var(--color-groupings);font-size:0.85em;margin-bottom:16px">Pre-prompts that optimize each model's performance. Customize these for your needs.</p>
+            
+            <div class="settings-field">
+                <label>OpenAI System Prompt</label>
+                <textarea id="openaiJailbreak" placeholder="System prompt for OpenAI models..."></textarea>
+            </div>
+            
+            <div class="settings-field">
+                <label>Anthropic System Prompt</label>
+                <textarea id="anthropicJailbreak" placeholder="System prompt for Anthropic models..."></textarea>
+            </div>
+            
+            <div class="settings-field">
+                <label>DeepSeek System Prompt</label>
+                <textarea id="deepseekJailbreak" placeholder="System prompt for DeepSeek models..."></textarea>
+            </div>
+            
+            <div class="jailbreak-preset">
+                <h4>💡 Preset Suggestions</h4>
+                <p><strong>OpenAI:</strong> "You are a helpful, creative, and intelligent AI assistant. Provide detailed, accurate answers."</p>
+                <p><strong>Anthropic:</strong> "You are Claude, an AI assistant created by Anthropic. You are helpful, harmless, and honest."</p>
+                <p><strong>DeepSeek:</strong> "You are a helpful assistant with expertise in coding and technical topics. Provide clear, concise answers."</p>
+            </div>
+            
+            <div class="settings-actions">
+                <button id="closeSettings">Cancel</button>
+                <button id="saveSettings" style="background:var(--color-gpt3)">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-go.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-rust.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-jsx.min.js"></script>
+    <script>
+    // Default jailbreaks
+    const DEFAULT_JAILBREAKS = {
+        openai: "You are a helpful, creative, and intelligent AI assistant. Provide detailed, accurate, and well-structured answers. When writing code, use proper formatting and include comments where helpful.",
+        anthropic: "You are Claude, an AI assistant created by Anthropic. You are helpful, harmless, and honest. You provide thoughtful, nuanced responses and acknowledge uncertainty when appropriate.",
+        deepseek: "You are a helpful assistant with deep expertise in coding and technical topics. Provide clear, concise, and accurate answers with code examples when relevant. Focus on best practices and efficient solutions."
+    };
+
+    const state = {
+        provider: localStorage.getItem('provider') || 'openai',
+        currentChatId: null,
+        chats: JSON.parse(localStorage.getItem('chats') || '[]'),
+        sidebarHidden: false,
+        jailbreaks: {
+            openai: localStorage.getItem('jailbreak_openai') || DEFAULT_JAILBREAKS.openai,
+            anthropic: localStorage.getItem('jailbreak_anthropic') || DEFAULT_JAILBREAKS.anthropic,
+            deepseek: localStorage.getItem('jailbreak_deepseek') || DEFAULT_JAILBREAKS.deepseek
+        }
+    };
+
+    // UI Elements
+    const sidebar = document.getElementById('sidebar');
+    const newChatView = document.getElementById('newChatView');
+    const conversationView = document.getElementById('conversationView');
+    const messagesList = document.getElementById('messagesList');
+    const messageInput = document.getElementById('message');
+    const settingsModal = document.getElementById('settingsModal');
+    const userMenuDropdown = document.getElementById('userMenuDropdown');
+
+    // Sidebar toggle
+    document.getElementById('toggleSidebar').addEventListener('click', () => {
+        state.sidebarHidden = !state.sidebarHidden;
+        sidebar.classList.toggle('hidden');
+    });
+
+    // User menu
+    document.getElementById('userMenuBtn').addEventListener('click', () => {
+        userMenuDropdown.classList.toggle('show-animate');
+        setTimeout(() => userMenuDropdown.classList.toggle('show'), 10);
+    });
+
+    // Settings modal
+    document.getElementById('settingsBtn').addEventListener('click', () => {
+        document.getElementById('openaiKey').value = localStorage.getItem('openai_key') || '';
+        document.getElementById('anthropicKey').value = localStorage.getItem('anthropic_key') || '';
+        document.getElementById('deepseekKey').value = localStorage.getItem('deepseek_key') || '';
+        document.getElementById('customEndpoint').value = localStorage.getItem('custom_endpoint') || '';
+        document.getElementById('customKey').value = localStorage.getItem('custom_key') || '';
+        document.getElementById('tempInput').value = localStorage.getItem('temperature') || '0.7';
+        document.getElementById('maxTokensInput').value = localStorage.getItem('max_tokens') || '1024';
+        
+        // Load jailbreaks
+        document.getElementById('openaiJailbreak').value = state.jailbreaks.openai;
+        document.getElementById('anthropicJailbreak').value = state.jailbreaks.anthropic;
+        document.getElementById('deepseekJailbreak').value = state.jailbreaks.deepseek;
+        
+        settingsModal.classList.add('show');
+    });
+
+    document.getElementById('closeSettings').addEventListener('click', () => {
+        settingsModal.classList.remove('show');
+    });
+
+    document.getElementById('saveSettings').addEventListener('click', () => {
+        localStorage.setItem('openai_key', document.getElementById('openaiKey').value.trim());
+        localStorage.setItem('anthropic_key', document.getElementById('anthropicKey').value.trim());
+        localStorage.setItem('deepseek_key', document.getElementById('deepseekKey').value.trim());
+        localStorage.setItem('custom_endpoint', document.getElementById('customEndpoint').value.trim());
+        localStorage.setItem('custom_key', document.getElementById('customKey').value.trim());
+        localStorage.setItem('temperature', document.getElementById('tempInput').value);
+        localStorage.setItem('max_tokens', document.getElementById('maxTokensInput').value);
+        
+        // Save jailbreaks
+        state.jailbreaks.openai = document.getElementById('openaiJailbreak').value.trim();
+        state.jailbreaks.anthropic = document.getElementById('anthropicJailbreak').value.trim();
+        state.jailbreaks.deepseek = document.getElementById('deepseekJailbreak').value.trim();
+        localStorage.setItem('jailbreak_openai', state.jailbreaks.openai);
+        localStorage.setItem('jailbreak_anthropic', state.jailbreaks.anthropic);
+        localStorage.setItem('jailbreak_deepseek', state.jailbreaks.deepseek);
+        
+        settingsModal.classList.remove('show');
+    });
+
+    // Provider selection
+    document.querySelectorAll('.model-selector button').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.model-selector button').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            state.provider = btn.dataset.provider;
+            localStorage.setItem('provider', state.provider);
+        });
+    });
+
+    // Chat management
+    function saveChats() {
+        localStorage.setItem('chats', JSON.stringify(state.chats));
+    }
+
+    function createNewChat() {
+        const chat = {
+            id: Date.now().toString(),
+            title: 'New Chat',
+            messages: [],
+            created: Date.now()
+        };
+        state.chats.unshift(chat);
+        saveChats();
+        loadChat(chat.id);
+        renderChatList();
+    }
+
+    function loadChat(chatId) {
+        const chat = state.chats.find(c => c.id === chatId);
+        if (!chat) return;
+        
+        state.currentChatId = chatId;
+        messagesList.innerHTML = '';
+        newChatView.style.display = 'none';
+        conversationView.style.display = 'flex';
+        
+        chat.messages.forEach(msg => {
+            appendMessage(msg.role, msg.content, false);
+        });
+        
+        renderChatList();
+    }
+
+    function deleteChat(chatId, event) {
+        event.stopPropagation();
+        state.chats = state.chats.filter(c => c.id !== chatId);
+        saveChats();
+        if (state.currentChatId === chatId) {
+            state.currentChatId = null;
+            messagesList.innerHTML = '';
+            newChatView.style.display = 'flex';
+            conversationView.style.display = 'none';
+        }
+        renderChatList();
+    }
+
+    function renderChatList() {
+        const container = document.getElementById('conversationsList');
+        container.innerHTML = '';
+        
+        const grouped = { today: [], yesterday: [], week: [], older: [] };
+        const now = Date.now();
+        const day = 24 * 60 * 60 * 1000;
+        
+        state.chats.forEach(chat => {
+            const age = now - chat.created;
+            if (age < day) grouped.today.push(chat);
+            else if (age < 2 * day) grouped.yesterday.push(chat);
+            else if (age < 7 * day) grouped.week.push(chat);
+            else grouped.older.push(chat);
+        });
+        
+        const sections = [
+            { label: 'Today', chats: grouped.today },
+            { label: 'Yesterday', chats: grouped.yesterday },
+            { label: 'Previous 7 days', chats: grouped.week },
+            { label: 'Older', chats: grouped.older }
+        ];
+        
+        sections.forEach(section => {
+            if (section.chats.length === 0) return;
+            
+            const grouping = document.createElement('li');
+            grouping.className = 'grouping';
+            grouping.textContent = section.label;
+            container.appendChild(grouping);
+            
+            section.chats.forEach(chat => {
+                const li = document.createElement('li');
+                if (chat.id === state.currentChatId) li.classList.add('active');
+                
+                const btn = document.createElement('button');
+                btn.className = 'conversation-button';
+                btn.innerHTML = `<i class="fa fa-message fa-regular"></i> ${chat.title}`;
+                btn.onclick = () => loadChat(chat.id);
+                
+                const fade = document.createElement('div');
+                fade.className = 'fade';
+                
+                const editButtons = document.createElement('div');
+                editButtons.className = 'edit-buttons';
+                editButtons.innerHTML = `
+                    <button><i class="fa fa-edit"></i></button>
+                    <button onclick="deleteChat('${chat.id}', event)"><i class="fa fa-trash"></i></button>
+                `;
+                
+                li.appendChild(btn);
+                li.appendChild(fade);
+                li.appendChild(editButtons);
+                container.appendChild(li);
+            });
+        });
+    }
+
+    window.deleteChat = deleteChat;
+
+    document.getElementById('newChatBtn').addEventListener('click', createNewChat);
+
+    // Code block functions
+    function copyCode(code, btn) {
+        navigator.clipboard.writeText(code).then(() => {
+            const orig = btn.textContent;
+            btn.textContent = 'Copied!';
+            btn.classList.add('copied');
+            setTimeout(() => {
+                btn.textContent = orig;
+                btn.classList.remove('copied');
+            }, 2000);
+        });
+    }
+
+    function downloadCode(code, language) {
+        const extensions = {
+            javascript: 'js', js:'js', python: 'py', java: 'java', c: 'c', cpp: 'cpp',
+            'c++':'cpp', csharp:'cs', 'c#':'cs', go: 'go', rust: 'rs', typescript: 'ts',
+            ts:'ts', jsx:'jsx', tsx:'tsx', bash: 'sh', shell:'sh', json: 'json', 
+            sql: 'sql', html:'html', css:'css', yaml:'yaml', yml:'yml', 
+            markdown:'md', md:'md', php:'php', ruby:'rb', swift:'swift', 
+            kotlin:'kt', scala:'scala', perl:'pl', r:'r'
+        };
+        const ext = extensions[language.toLowerCase()] || 'txt';
+        const blob = new Blob([code], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `code.${ext}`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    function createCodeBlock(language, code) {
+        const codeBlock = document.createElement('div');
+        codeBlock.className = 'code-block';
+
+        const header = document.createElement('div');
+        header.className = 'code-header';
+
+        const langLabel = document.createElement('div');
+        langLabel.className = 'code-lang';
+        langLabel.textContent = language || 'text';
+
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'code-actions';
+
+        const copyBtn = document.createElement('button');
+        copyBtn.className = 'code-btn';
+        copyBtn.textContent = 'Copy';
+        copyBtn.onclick = function () { copyCode(code, this); };
+
+        const downloadBtn = document.createElement('button');
+        downloadBtn.className = 'code-btn';
+        downloadBtn.textContent = 'Download';
+        downloadBtn.onclick = () => downloadCode(code, language);
+
+        actionsDiv.appendChild(copyBtn);
+        actionsDiv.appendChild(downloadBtn);
+
+        header.appendChild(langLabel);
+        header.appendChild(actionsDiv);
+
+        const pre = document.createElement('pre');
+        const codeEl = document.createElement('code');
+        codeEl.className = `language-${language || 'text'}`;
+        codeEl.textContent = code;
+        pre.appendChild(codeEl);
+
+        codeBlock.appendChild(header);
+        codeBlock.appendChild(pre);
+
+        Prism.highlightElement(codeEl);
+
+        return codeBlock;
+    }
+
+    function parseMessageContent(content) {
+        const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
+        let lastIndex = 0;
+        const parts = [];
+
+        let match;
+        while ((match = codeBlockRegex.exec(content)) !== null) {
+            if (match.index > lastIndex) {
+                parts.push({ type: 'text', content: content.substring(lastIndex, match.index) });
+            }
+            parts.push({ type: 'code', language: match[1] || 'text', content: match[2].trim() });
+            lastIndex = match.index + match[0].length;
+        }
+
+        if (lastIndex < content.length) {
+            parts.push({ type: 'text', content: content.substring(lastIndex) });
+        }
+
+        return parts.length > 0 ? parts : [{ type: 'text', content }];
+    }
+
+    function renderMessageContent(parts) {
+        const container = document.createElement('div');
+        parts.forEach(part => {
+            if (part.type === 'text') {
+                const textNode = document.createElement('p');
+                textNode.textContent = part.content;
+                textNode.style.whiteSpace = 'pre-wrap';
+                container.appendChild(textNode);
+            } else {
+                container.appendChild(createCodeBlock(part.language, part.content));
+            }
+        });
+        return container;
+    }
+
+    function appendMessage(role, content, saveToChat = true) {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `${role} message`;
+
+        const identity = document.createElement('div');
+        identity.className = 'identity';
+        identity.innerHTML = role === 'user' 
+            ? '<i class="user-icon">u</i>' 
+            : '<i class="gpt user-icon">G</i>';
+
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'content';
+
+        const parts = parseMessageContent(content);
+        const renderedContent = renderMessageContent(parts);
+        contentDiv.appendChild(renderedContent);
+
+        msgDiv.appendChild(identity);
+        msgDiv.appendChild(contentDiv);
+        messagesList.appendChild(msgDiv);
+        messagesList.scrollTop = messagesList.scrollHeight;
+
+        if (saveToChat && state.currentChatId) {
+            const chat = state.chats.find(c => c.id === state.currentChatId);
+            if (chat) {
+                chat.messages.push({ role, content });
+                if (chat.title === 'New Chat' && role === 'user') {
+                    chat.title = content.substring(0, 50) + (content.length > 50 ? '...' : '');
+                    renderChatList();
+                }
+                saveChats();
+            }
+        }
+
+        return contentDiv;
+    }
+
+    // Send message
+    document.getElementById('sendBtn').addEventListener('click', sendMessage);
+    messageInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+
+    async function sendMessage() {
+        const text = messageInput.value.trim();
+        if (!text) return;
+
+        if (!state.currentChatId) {
+            createNewChat();
+        }
+
+        appendMessage('user', text);
+        messageInput.value = '';
+
+        const model = document.getElementById('modelSelect').value;
+        const temperature = parseFloat(localStorage.getItem('temperature') || '0.7');
+        const max_tokens = parseInt(localStorage.getItem('max_tokens') || '1024', 10);
+
+        const placeholder = appendMessage('assistant', '...');
+
+        try {
+            const chat = state.chats.find(c => c.id === state.currentChatId);
+            const history = chat ? chat.messages : [];
+
+            let reply = '';
+            if (state.provider === 'openai') {
+                reply = await callOpenAI(history, model, temperature, max_tokens);
+            } else if (state.provider === 'anthropic') {
+                reply = await callAnthropic(history, model, temperature, max_tokens);
+            } else if (state.provider === 'deepseek') {
+                reply = await callDeepSeek(history, model, temperature, max_tokens);
+            }
+
+            if (chat) {
+                chat.messages.push({ role: 'assistant', content: reply });
+                saveChats();
+            }
+
+            const parts = parseMessageContent(reply);
+            placeholder.innerHTML = '';
+            placeholder.appendChild(renderMessageContent(parts));
+        } catch (err) {
+            placeholder.textContent = 'Error: ' + (err.message || String(err));
+        }
+    }
+
+    async function callOpenAI(history, model, temperature, max_tokens) {
+        const key = localStorage.getItem('openai_key');
+        if (!key) throw new Error('OpenAI key not set. Please add it in Settings.');
+        const endpoint = 'https://api.openai.com/v1/chat/completions';
+        
+        const messages = [
+            { role: 'system', content: state.jailbreaks.openai }
+        ].concat(history.map(m => ({ role: m.role, content: m.content })));
+        
+        const body = { model: model || 'gpt-4o-mini', messages, temperature, max_tokens };
+        const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+            body: JSON.stringify(body)
+        });
+        if (!res.ok) {
+            const t = await res.text();
+            throw new Error(res.status + ' ' + t);
+        }
+        const data = await res.json();
+        if (data.choices && data.choices[0] && data.choices[0].message) return data.choices[0].message.content;
+        return JSON.stringify(data);
+    }
+
+    async function callAnthropic(history, model, temperature, max_tokens) {
+        const key = localStorage.getItem('anthropic_key');
+        if (!key) throw new Error('Anthropic key not set. Please add it in Settings.');
+        const endpoint = 'https://api.anthropic.com/v1/messages';
+        
+        const messages = history.map(m => ({ role: m.role, content: m.content }));
+        const body = { 
+            model: model || 'claude-3-5-sonnet-20241022', 
+            system: state.jailbreaks.anthropic,
+            messages, 
+            max_tokens, 
+            temperature 
+        };
+        const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': key,
+                'anthropic-version': '2023-06-01'
+            },
+            body: JSON.stringify(body)
+        });
+        if (!res.ok) {
+            const t = await res.text();
+            throw new Error(res.status + ' ' + t);
+        }
+        const data = await res.json();
+        if (data.content && data.content[0] && data.content[0].text) return data.content[0].text;
+        return JSON.stringify(data);
+    }
+
+    async function callDeepSeek(history, model, temperature, max_tokens) {
+        const key = localStorage.getItem('deepseek_key');
+        if (!key) throw new Error('DeepSeek key not set. Please add it in Settings.');
+        const endpoint = 'https://api.deepseek.com/chat/completions';
+        
+        const messages = [
+            { role: 'system', content: state.jailbreaks.deepseek }
+        ].concat(history.map(m => ({ role: m.role, content: m.content })));
+        
+        const body = { model: model || 'deepseek-chat', messages, temperature, max_tokens };
+        const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+            body: JSON.stringify(body)
+        });
+        if (!res.ok) {
+            const t = await res.text();
+            throw new Error(res.status + ' ' + t);
+        }
+        const data = await res.json();
+        if (data.choices && data.choices[0] && data.choices[0].message) return data.choices[0].message.content;
+        return JSON.stringify(data);
+    }
+
+    // Auto-resize textarea
+    messageInput.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 200) + 'px';
+    });
+
+    // Initialize
+    (function() {
+        if (state.chats.length === 0) {
+            newChatView.style.display = 'flex';
+            conversationView.style.display = 'none';
+        } else {
+            renderChatList();
+            loadChat(state.chats[0].id);
+        }
+
+        // Set selected provider button
+        document.querySelectorAll('.model-selector button').forEach(btn => {
+            if (btn.dataset.provider === state.provider) {
+                btn.classList.add('selected');
+            }
+        });
+    })();
+    </script>
+</body>
+</html>
