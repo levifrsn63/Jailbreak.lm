@@ -1,4 +1,5 @@
-# ChatGPT Clone
+# Jailbreak.LM -ng
+
 
 A modern, multi-provider AI chat interface that supports OpenAI, Anthropic, and DeepSeek APIs. This application provides a ChatGPT-like experience with a sleek, Apple-inspired UI and comprehensive features for AI-powered conversations.
 The site is Live at: https://levifrsn63.github.io/Jailbreak.lm/
